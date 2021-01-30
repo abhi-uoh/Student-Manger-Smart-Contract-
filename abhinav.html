@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Attendance Manager</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.2.6/dist/web3.min.js"></script>
+    <script type="text/javascript">
+        var contract;
+        var address = "0x1484ee7e5b0e89cec5c06a683ca48c185f911721";
+        var abi = [
+            {
+                "inputs": [
+                    {
+                        "internalType": "address",
+                        "name": "adr",
+                        "type": "address"
+                    }
+                ],
+                "name": "addAdmin",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "int256",
+                        "name": "_rollno",
+                        "type": "int256"
+                    }
+                ],
+                "name": "addAttendance",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "int256",
+                        "name": "_rollno",
+                        "type": "int256"
+                    },
+                    {
+                        "internalType": "string",
+                        "name": "_name",
+                        "type": "string"
+                    },
+                    {
+                        "internalType": "int256",
+                        "name": "_attendance",
+                        "type": "int256"
+                    }
+                ],
+                "name": "addStudent",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [],
+                "stateMutability": "nonpayable",
+                "type": "constructor"
+            },
+            {
+                "inputs": [
+                    {
+                        "internalType": "int256",
+                        "name": "_rollno",
+                        "type": "int256"
+                    }
+                ],
+                "name": "viewAttendance",
+                "outputs": [
+                    {
+                        "components": [
+                            {
+                                "internalType": "int256",
+                                "name": "rollno",
+                                "type": "int256"
+                            },
+                            {
+                                "internalType": "string",
+                                "name": "name",
+                                "type": "string"
+                            },
+                            {
+                                "internalType": "int256",
+                                "name": "attendance",
+                                "type": "int256"
+                            }
+                        ],
+                        "internalType": "struct AttendanceManager.Student1",
+                        "name": "",
+                        "type": "tuple"
+                    }
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ]
+        web3 = new Web3(web3.currentProvider);
+        contract = new web3.eth.Contract(abi, address);
+        $(document).ready(function () {
+            $("#_view_btn_attendance").click(function () {
+                var s_id = parseInt($("#_view_id").val());
+                contract.methods.viewAttendance(s_id).call().then(function (attendance) {
+                    $("#_view_attendance").val(attendance['attendance']);
+                    console.log(attendance);
+                })
+            })
+            $("#_add_attendance").click(function () {
+                web3.eth.getAccounts().then(function (accounts) {
+                    var acnt = accounts[0];
+                    var sid = $("#_attendance_id").val();
+                    return contract.methods.addAttendance(sid).send({ from: acnt });
+                }).then(function (trx) {
+                    console.log(trx);
+                    alert("Attendance successfully added :)");
+                })
+            })
+            $("#_add_student").click(function () {
+                web3.eth.getAccounts().then(function (accounts) {
+                    var acnt = accounts[0];
+                    var sid = $("#_id").val();
+                    var name = $("#_name").val();
+                    var attendance = $("#_attendance").val();
+                    console.log(sid);
+                    console.log(name);
+                    console.log(attendance);
+                    return contract.methods.addStudent(sid, name, attendance).send({ from: acnt });
+                }).then(function (trx) {
+                    console.log(trx);
+                    alert("Student Successfully Added :)");
+                })
+            })
+            $("#_add_admin").click(function () {
+                web3.eth.getAccounts().then(function (accounts) {
+                    var acnt = accounts[0];
+                    var admin = $("#_admin").val();
+                    return contract.methods.addAdmin(admin).send({ from: acnt });
+                }).then(function (trx) {
+                    console.log(trx);
+                    alert("Admin successfully added :)");
+                })
+            })
+        })
+    </script>
+    <style>
+        #container {
+            margin: 0px;
+            padding: 0px;
+            width: auto;
+            height: 777px;
+            background-color: rgba(55, 85, 78, 0.568);
+
+        }
+
+        h1 {
+            font-size: 400%;
+            text-align: center;
+        }
+
+        .inner_container {
+            width: 500px;
+            height: 250px;
+            background-color: rgb(143, 68, 93);
+            display: block;
+            float: left;
+            margin-left: auto;
+            margin-right: auto;
+            align-items: center;
+            text-align: center;
+            border-radius: 25px;
+            margin: 30px;
+            justify-content: center;
+        }
+
+        h2 {
+            padding: 10px;
+            background-color: rgba(13, 151, 243, 0.836);
+            margin: 0px;
+            margin-bottom: 20px;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+
+<body center>
+    <div id="container">
+        <h2 style="text-align: center;">ATTENDANCE RECORD MANAGER</h2>
+        <div class="inner_container" id="add_student">
+            <h2>Add Student</h2>
+            <label for="id">Student Id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <input type="text" id="_id"><br><br>
+            <label for="name">Student Name&nbsp;&nbsp;</label>
+            <input type="text" name="" id="_name"><br><br>
+            <label for="Attendance">Attendance&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label>
+            <input type="text" name="" id="_attendance"><br><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="submit" value="Add Student" id="_add_student">
+        </div>
+        <div class="inner_container" id="add_attendance">
+            <h2>Add Attendance</h2>
+            <label for="Attendance">Student Id</label>
+            <input type="text" name="" id="_attendance_id"><br><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="submit" value="Add Attendance" id="_add_attendance">
+        </div>
+        <div class="inner_container" id="view_attendance">
+            <h2>View Attendance</h2>
+            <label for="Attendance">Student Id&nbsp;&nbsp;</label>
+            <input type="text" name="" id="_view_id"><br><br>
+            <label for="Attendance">Attendance</label>
+            <input type="text" name="" id="_view_attendance"><br><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="submit" value="View Attendance" id="_view_btn_attendance">
+        </div>
+        <div class="inner_container" id="add_admin">
+            <h2>Add Admin</h2>
+            <label for="Attendance">Admin Address</label>
+            <input type="text" name="" id="_admin"><br><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <input type="submit" value="Add Admin" id="_add_admin">
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+
+<!-- 0xb6906ab0fbd64b682f6735c3d064145778f5d0df -->
